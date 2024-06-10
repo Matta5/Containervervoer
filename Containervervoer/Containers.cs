@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Containervervoer
+﻿namespace Containervervoer
 {
+    public enum ContainerType
+    {
+        Standard,
+        Valuable,
+        Coolable
+    }
+
     public class Containers
     {
         public double Weight { get; private set; }
-        public bool IsValuable { get; private set; }
-        public bool IsRefrigerated { get; private set; }
+        public ContainerType Type { get; set; }
 
-        public Containers(double weight, bool isValuable = false, bool isRefrigerated = false)
+        public Containers(double weight, ContainerType type)
         {
             Weight = weight;
-            IsValuable = isValuable;
-            IsRefrigerated = isRefrigerated;
+            Type = type;            
         }
     }
 }

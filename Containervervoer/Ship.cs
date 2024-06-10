@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Containervervoer
+﻿namespace Containervervoer
 {
     public class Ship
     {
@@ -12,76 +6,39 @@ namespace Containervervoer
         public double CurrentWeight { get; private set; }
         public int Length { get; private set; }
         public int Width { get; private set; }
-        private Containers[,] Containers;
+        public Stack<Containers>[,] Containers;
 
         public Ship(double maxWeight, int length, int width)
         {
             MaxWeight = maxWeight;
             Length = length;
             Width = width;
-            Containers = new Containers[length, width];
+            Containers = new Stack<Containers>[length, width];
+            for (int i = 0; i < length; i++)
+            {
+                for (int j = 0; j < width; j++)
+                {
+                    Containers[i, j] = new Stack<Containers>();
+                }
+            }
             CurrentWeight = 0;
         }
 
-        public void AddContainer(Containers container, Position position)
+        public void AddContainer(Containers container, int row, int column)
         {
-            if (Containers[position.Row, position.Column] == null)
+            if (row < 0 || row >= Length || column < 0 || column >= Width)
             {
-                Containers[position.Row, position.Column] = container;
-                CurrentWeight += container.Weight;
-            }
-        }
-
-        public void RemoveContainer(Position position)
-        {
-            var container = Containers[position.Row, position.Column];
-            if (container != null)
-            {
-                CurrentWeight -= container.Weight;
-                Containers[position.Row, position.Column] = null;
-            }
-        }
-
-        public double CalculateCurrentWeight()
-        {
-            return CurrentWeight;
-        }
-
-        public bool IsBalanced()
-        {
-            double leftWeight = 0, rightWeight = 0;
-            int mid = Width / 2;
-
-            for (int i = 0; i < Length; i++)
-            {
-                for (int j = 0; j < mid; j++)
-                {
-                    if (Containers[i, j] != null)
-                    {
-                        leftWeight += Containers[i, j].Weight;
-                    }
-                }
-                for (int j = mid; j < Width; j++)
-                {
-                    if (Containers[i, j] != null)
-                    {
-                        rightWeight += Containers[i, j].Weight;
-                    }
-                }
+                throw new ArgumentException("Invalid position.");
             }
 
-            return Math.Abs(leftWeight - rightWeight) <= 0.2 * CurrentWeight;
+            if (CurrentWeight + container.Weight > MaxWeight)
+            {
+                throw new InvalidOperationException("Adding this container would exceed the ship's maximum weight.");
+            }
+
+            Containers[row, column].Push(container);
+            CurrentWeight += container.Weight;
         }
 
-        public bool IsMinimumWeightUsed()
-        {
-            return CurrentWeight >= 0.5 * MaxWeight;
-        }
-
-        public bool IsValid()
-        {
-            // Add validation logic for other constraints
-            return IsBalanced() && IsMinimumWeightUsed();
-        }
     }
 }
