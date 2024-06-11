@@ -1,25 +1,32 @@
 ﻿using Containervervoer;
+
+class Program
 {
-    var containers = new List<Containers>
-{
-    new Containers(10, ContainerType.Standard),
-    new Containers(20, ContainerType.Valuable),
-    new Containers(15, ContainerType.Coolable),
-    new Containers(5, ContainerType.Standard)
-};
-
-    Console.WriteLine("Enter the number of rows:");
-    int rows = int.Parse(Console.ReadLine());
-
-    Console.WriteLine("Enter the number of columns:");
-    int columns = int.Parse(Console.ReadLine());
-
-    for (int i = 0; i < rows; i++)
+    static void Main()
     {
-        for (int j = 0; j < columns; j++)
+        Console.WriteLine("Enter the length of the ship:");
+        int length = int.Parse(Console.ReadLine());
+        Console.WriteLine("Enter the width of the ship:");
+        int width = int.Parse(Console.ReadLine());
+
+        var ship = new CargoShip(length, width);
+
+        var containers = new List<Container>
         {
-            Console.Write("i ");
+            new Container(10, ContainerType.Regular),
+            new Container(20, ContainerType.Valuable),
+            new Container(15, ContainerType.Cooled),
+            new Container(5, ContainerType.Regular),
+            new Container(8, ContainerType.Regular),
+            new Container(12, ContainerType.Valuable),
+            new Container(18, ContainerType.Cooled)
+        };
+
+        foreach (var container in containers)
+        {
+            ship.AddContainer(container);
         }
-        Console.WriteLine();
+
+        ship.Display();
     }
 }

@@ -2,20 +2,35 @@
 {
     public enum ContainerType
     {
-        Standard,
+        Regular,
         Valuable,
-        Coolable
+        Cooled
     }
 
-    public class Containers
+    public class Container
     {
         public double Weight { get; private set; }
-        public ContainerType Type { get; set; }
+        public ContainerType Type { get; private set; }
 
-        public Containers(double weight, ContainerType type)
+        public Container(double weight, ContainerType type = ContainerType.Regular)
         {
             Weight = weight;
-            Type = type;            
+            Type = type;
+        }
+
+        public override string ToString()
+        {
+            switch (Type)
+            {
+                case ContainerType.Valuable:
+                    return "V";
+                case ContainerType.Cooled:
+                    return "R";
+                default:
+                    return "C";
+            }
         }
     }
+
+
 }
