@@ -25,9 +25,9 @@
                 case ContainerType.Valuable:
                     return "V";
                 case ContainerType.Cooled:
-                    return "R";
-                default:
                     return "C";
+                default:
+                    return "R";
             }
         }
     }
