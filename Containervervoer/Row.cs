@@ -1,42 +1,65 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Containervervoer;
 
-namespace Containervervoer
+public class Row
 {
-    public class Row
+    public List<Stack> Stacks { get; private set; }
+
+    public Row(int width)
     {
-        public List<Stack> Stacks { get; private set; }
-
-        public bool CanAddContainer(Container container, bool isFirstRow)
+        Stacks = new List<Stack>();
+        for (int i = 0; i < width; i++)
         {
-            // All coolable containers must be in the first row
-            if (container.Type == ContainerType.Cooled && !isFirstRow)
-            {
-                return false;
-            }
+            Stacks.Add(new Stack());
+        }
+    }
 
-            // Valuable containers must be accessible from the front or back
-            if (container.Type == ContainerType.Valuable && Stacks.Count > 1)
-            {
-                return false;
-            }
-
-            return Stacks.Any(stack => stack.CanAddContainer(container));
+    public bool CanAddContainer(Container container, bool isFirstRow)
+    {
+        // Alle cooled containers moeten op de eerste rij worden geplaatst
+        if (container.Type == ContainerType.Cooled && !isFirstRow)
+        {
+            return false;
         }
 
-        public void AddContainer(Container container)
+        // kijk of er een stack is waar de valuable container op kan
+        if (container.Type == ContainerType.Valuable)
         {
+            // Check of er een stack is waar de valuable container op kan
+            return Stacks.Any(stack => !stack.Containers.Any() || (stack.Containers.Count == 1 && stack.Containers[0].Type != ContainerType.Valuable));
+        }
+
+        // Kijk of er een stack is waar de container op kan
+        return Stacks.Any(stack => stack.CanAddContainer(container));
+    }
+
+    public void AddContainer(Container container)
+    {
+        if (container.Type == ContainerType.Cooled)
+        {
+            // probeer cooled container toe te voegen aan de eerste stack
+            if (Stacks[0].CanAddContainer(container))
+            {
+                Stacks[0].AddContainer(container);
+            }
+            else
+            {
+                throw new InvalidOperationException("Cannot add cooled container to the first stack.");
+            }
+        }
+        else
+        {
+            // Voeg container toe aan de eerste stack waar het kan
             foreach (var stack in Stacks)
             {
                 if (stack.CanAddContainer(container))
                 {
                     stack.AddContainer(container);
-                    break;
+                    return;
                 }
             }
+
+            // als er geen stack is waar de container op kan, gooi een exception
+            throw new InvalidOperationException("Cannot add container to any stack.");
         }
     }
 }

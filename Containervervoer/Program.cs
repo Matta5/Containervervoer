@@ -12,15 +12,22 @@ class Program
         var ship = new CargoShip(length, width);
 
         var containers = new List<Container>
-        {
-            new Container(10, ContainerType.Regular),
-            new Container(20, ContainerType.Valuable),
-            new Container(15, ContainerType.Cooled),
-            new Container(5, ContainerType.Regular),
-            new Container(8, ContainerType.Regular),
-            new Container(12, ContainerType.Valuable),
-            new Container(18, ContainerType.Cooled)
-        };
+            {
+                new Container(10, ContainerType.Regular),
+                new Container(20, ContainerType.Valuable),
+                new Container(15, ContainerType.Cooled),
+                new Container(5, ContainerType.Regular),
+                new Container(8, ContainerType.Regular),
+                new Container(12, ContainerType.Valuable),
+                new Container(18, ContainerType.Cooled)
+            };
+
+        // Sorteer de containers op type en gewicht
+        var sortedContainers = containers
+            .OrderByDescending(c => c.Type == ContainerType.Cooled)
+            .ThenByDescending(c => c.Type == ContainerType.Regular)
+            .ThenByDescending(c => c.Weight)
+            .ToList();
 
         foreach (var container in containers)
         {

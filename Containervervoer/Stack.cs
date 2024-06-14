@@ -1,27 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Containervervoer
+﻿namespace Containervervoer
 {
     public class Stack
     {
         public List<Container> Containers { get; private set; }
 
+        public Stack()
+        {
+            Containers = new List<Container>(); // Initialiseer een nieuwe lijst van containers
+        }
+
         public bool CanAddContainer(Container container)
         {
-            // Nothing can be stacked on top of a valuable container
-            if (Containers.Any(c => c.Type == ContainerType.Valuable))
+            // Controleer of er iets op een waardevolle container kan worden gestapeld
+            if (Containers.Any() && container.Type == ContainerType.Valuable)
+            {
+                return false; // Waardevolle containers kunnen niet op een andere container worden geplaatst
+            }
+
+            // Het maximale gewicht bovenop een container is 120 ton
+            if (Containers.Sum(c => c.Weight) + container.Weight > 120)
             {
                 return false;
             }
 
-            // The maximum weight on top of a container is 120 tons
-            if (Containers.Sum(c => c.Weight) + container.Weight > 120)
+            // Zorg ervoor dat waardevolle containers op een toegankelijke manier worden geplaatst
+            if (container.Type == ContainerType.Valuable && Containers.Any(c => c.Type == ContainerType.Valuable))
             {
-                return false;
+                return false; // Voorkom dat er iets op een waardevolle container wordt gestapeld
             }
 
             return true;
@@ -31,10 +36,10 @@ namespace Containervervoer
         {
             if (!CanAddContainer(container))
             {
-                throw new InvalidOperationException("Cannot add container to the stack.");
+                throw new InvalidOperationException("Kan container niet aan de stapel toevoegen.");
             }
 
-            Containers.Add(container);
+            Containers.Add(container); // Voeg de container toe aan de lijst
         }
     }
 }
