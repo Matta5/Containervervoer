@@ -18,19 +18,5 @@
             Type = type;
         }
 
-        public override string ToString()
-        {
-            switch (Type)
-            {
-                case ContainerType.Valuable:
-                    return "V";
-                case ContainerType.Cooled:
-                    return "C";
-                default:
-                    return "R";
-            }
-        }
     }
-
-
 }

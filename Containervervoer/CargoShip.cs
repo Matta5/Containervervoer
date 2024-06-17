@@ -22,6 +22,7 @@ public class CargoShip
     {
         if (container.Type == ContainerType.Cooled)
         {
+            // Handle cooled containers
             var firstRow = Rows[0];
             if (firstRow.CanAddContainer(container, true))
             {
@@ -35,6 +36,7 @@ public class CargoShip
         }
         else if (container.Type == ContainerType.Valuable)
         {
+            // Handle valuable containers
             foreach (var row in Rows)
             {
                 if (row.CanAddContainer(container, Rows.IndexOf(row) == 0))
@@ -62,31 +64,5 @@ public class CargoShip
         }
     }
 
-    public void Display()
-    {
-        // Correctly determine the maximum height based on the tallest stack
-        int maxHeight = Rows.Max(row => row.Stacks.Max(stack => stack.Containers.Count));
-
-        // Display each layer
-        for (int h = 0; h < maxHeight; h++)
-        {
-            Console.WriteLine($"Layer {h + 1}:");
-            foreach (var row in Rows)
-            {
-                foreach (var stack in row.Stacks)
-                {
-                    if (h < stack.Containers.Count)
-                    {
-                        Console.Write($"[{stack.Containers[h]}]");
-                    }
-                    else
-                    {
-                        Console.Write("[ ]");
-                    }
-                }
-                Console.WriteLine();
-            }
-            Console.WriteLine();
-        }
-    }
+    
 }

@@ -6,27 +6,21 @@
 
         public Stack()
         {
-            Containers = new List<Container>(); // Initialiseer een nieuwe lijst van containers
+            Containers = new List<Container>();
         }
 
         public bool CanAddContainer(Container container)
         {
-            // Controleer of er iets op een waardevolle container kan worden gestapeld
-            if (Containers.Any() && container.Type == ContainerType.Valuable)
-            {
-                return false; // Waardevolle containers kunnen niet op een andere container worden geplaatst
-            }
-
             // Het maximale gewicht bovenop een container is 120 ton
             if (Containers.Sum(c => c.Weight) + container.Weight > 120)
             {
                 return false;
             }
 
-            // Zorg ervoor dat waardevolle containers op een toegankelijke manier worden geplaatst
-            if (container.Type == ContainerType.Valuable && Containers.Any(c => c.Type == ContainerType.Valuable))
+            // Als de stapel al containers bevat, controleer dan of de bovenste container waardevol is
+            if (Containers.Any() && Containers.Last().Type == ContainerType.Valuable)
             {
-                return false; // Voorkom dat er iets op een waardevolle container wordt gestapeld
+                return false; // Voorkom dat er op een waardevolle container wordt gestapeld
             }
 
             return true;

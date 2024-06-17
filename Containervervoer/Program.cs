@@ -34,6 +34,6 @@ class Program
             ship.AddContainer(container);
         }
 
-        ship.Display();
+        ShipDisplay.Display(ship);
     }
 }

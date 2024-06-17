@@ -13,9 +13,10 @@ public class Row
         }
     }
 
+
     public bool CanAddContainer(Container container, bool isFirstRow)
     {
-        // Alle cooled containers moeten op de eerste rij worden geplaatst
+        // Alle cooled containers moeten op de eerste rij worden geplaatst 
         if (container.Type == ContainerType.Cooled && !isFirstRow)
         {
             return false;
@@ -32,18 +33,27 @@ public class Row
         return Stacks.Any(stack => stack.CanAddContainer(container));
     }
 
+
     public void AddContainer(Container container)
     {
         if (container.Type == ContainerType.Cooled)
         {
-            // probeer cooled container toe te voegen aan de eerste stack
-            if (Stacks[0].CanAddContainer(container))
+            // Probeer de gekoelde container toe te voegen aan een geschikte stapel in de eerste rij
+            bool added = false;
+            foreach (var stack in Stacks)
             {
-                Stacks[0].AddContainer(container);
+                if (stack.CanAddContainer(container))
+                {
+                    stack.AddContainer(container);
+                    added = true;
+                    break;
+                }
             }
-            else
+
+            if (!added)
             {
-                throw new InvalidOperationException("Cannot add cooled container to the first stack.");
+                // Als geen enkele bestaande stapel geschikt is, overweeg dan een nieuwe stapel toe te voegen als dat mogelijk is
+                throw new InvalidOperationException("Cannot add cooled container to the first row.");
             }
         }
         else
