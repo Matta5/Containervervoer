@@ -11,16 +11,14 @@
 
         public bool CanAddContainer(Container container)
         {
-            // Het maximale gewicht bovenop een container is 120 ton
-            if (Containers.Sum(c => c.Weight) + container.Weight > 120)
+            if (Containers.Skip(1).Sum(c => c.Weight) + container.Weight > 120)
             {
                 return false;
             }
 
-            // Als de stapel al containers bevat, controleer dan of de bovenste container waardevol is
             if (Containers.Any() && Containers.Last().Type == ContainerType.Valuable)
             {
-                return false; // Voorkom dat er op een waardevolle container wordt gestapeld
+                return false;
             }
 
             return true;
