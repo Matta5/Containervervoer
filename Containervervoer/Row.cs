@@ -2,7 +2,7 @@
 
 public class Row
 {
-    public List<Stack> Stacks { get; private set; }
+    private List<Stack> Stacks { get; set; }
 
     public Row(int width)
     {
@@ -12,6 +12,17 @@ public class Row
             Stacks.Add(new Stack());
         }
     }
+
+    public void AddStack(Stack stack)
+    {
+        Stacks.Add(stack);
+    }
+
+    public List<Stack> GetStacks()
+    {
+        return new List<Stack>(Stacks);
+    }
+
 
 
     public bool CanAddContainer(Container container, bool isFirstRow)
@@ -26,7 +37,7 @@ public class Row
         if (container.Type == ContainerType.Valuable)
         {
             // Check of er een stack is waar de valuable container op kan
-            return Stacks.Any(stack => !stack.Containers.Any() || (stack.Containers.Count == 1 && stack.Containers[0].Type != ContainerType.Valuable));
+            return Stacks.Any(stack => !stack.GetContainers().Any() || (stack.GetContainers().Count == 1 && stack.GetContainers()[0].Type != ContainerType.Valuable));
         }
 
         // Kijk of er een stack is waar de container op kan
@@ -38,7 +49,6 @@ public class Row
     {
         if (container.Type == ContainerType.Cooled)
         {
-            // Probeer de gekoelde container toe te voegen aan een geschikte stapel in de eerste rij
             bool added = false;
             foreach (var stack in Stacks)
             {
@@ -52,13 +62,11 @@ public class Row
 
             if (!added)
             {
-                // Als geen enkele bestaande stapel geschikt is, overweeg dan een nieuwe stapel toe te voegen als dat mogelijk is
                 throw new InvalidOperationException("Cannot add cooled container to the first row.");
             }
         }
         else
         {
-            // Voeg container toe aan de eerste stack waar het kan
             foreach (var stack in Stacks)
             {
                 if (stack.CanAddContainer(container))
@@ -68,7 +76,6 @@ public class Row
                 }
             }
 
-            // als er geen stack is waar de container op kan, gooi een exception
             throw new InvalidOperationException("Cannot add container to any stack.");
         }
     }

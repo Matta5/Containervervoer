@@ -4,7 +4,7 @@ public class CargoShip
 {
     public int Length { get; private set; }
     public int Width { get; private set; }
-    public List<Row> Rows { get; private set; }
+    private List<Row> Rows { get; set; }
 
     public CargoShip(int length, int width)
     {
@@ -64,5 +64,11 @@ public class CargoShip
         }
     }
 
-    
+    public List<Row> GetRows()
+    {
+        return new List<Row>(Rows);
+    }
 }
+
+
+

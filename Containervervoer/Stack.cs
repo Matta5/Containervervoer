@@ -2,11 +2,16 @@
 {
     public class Stack
     {
-        public List<Container> Containers { get; private set; }
+        private List<Container> Containers { get; set; }
 
         public Stack()
         {
             Containers = new List<Container>();
+        }
+
+        public List<Container> GetContainers()
+        {
+            return new List<Container>(Containers);
         }
 
         public bool CanAddContainer(Container container)
@@ -35,3 +40,5 @@
         }
     }
 }
+
+

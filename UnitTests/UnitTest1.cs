@@ -10,11 +10,12 @@ namespace Containervervoer.Tests
         public void CannotAddContainerIfExceedsMaxWeight()
         {
             var stack = new Stack();
-            stack.AddContainer(new Container(30, ContainerType.Regular)); // 30 tons
-            stack.AddContainer(new Container(30, ContainerType.Regular)); // 30 tons
-            stack.AddContainer(new Container(30, ContainerType.Regular)); // 30 tons
-            stack.AddContainer(new Container(30, ContainerType.Regular)); // 30 tons
-            // Now the stack is at its maximum of 120 tons
+            stack.AddContainer(new Container(10, ContainerType.Cooled));
+            stack.AddContainer(new Container(30, ContainerType.Regular));
+            stack.AddContainer(new Container(30, ContainerType.Regular));
+            stack.AddContainer(new Container(30, ContainerType.Regular));
+            stack.AddContainer(new Container(30, ContainerType.Regular));
+            // 120 tons on top of 1 container so far, cannot add 10 tons
             Assert.IsFalse(stack.CanAddContainer(new Container(10, ContainerType.Regular)));
         }
 
@@ -22,11 +23,11 @@ namespace Containervervoer.Tests
         public void CanAddContainerIfWithinMaxWeight()
         {
             var stack = new Stack();
-            stack.AddContainer(new Container(30, ContainerType.Regular)); // 30 tons
-            stack.AddContainer(new Container(30, ContainerType.Regular)); // 30 tons
-            stack.AddContainer(new Container(30, ContainerType.Regular)); // 30 tons
-            // 90 tons so far, can still add up to 30 tons
-            Assert.IsTrue(stack.CanAddContainer(new Container(30, ContainerType.Regular))); // Adding 30 tons should be within 120 tons
+            stack.AddContainer(new Container(30, ContainerType.Regular));
+            stack.AddContainer(new Container(30, ContainerType.Regular));
+            stack.AddContainer(new Container(30, ContainerType.Regular));
+            // 60 tons on top of 1 containerso so far, can still add up to 30 tons
+            Assert.IsTrue(stack.CanAddContainer(new Container(30, ContainerType.Regular)));
         }
 
         [TestMethod]
@@ -41,8 +42,8 @@ namespace Containervervoer.Tests
         public void CanAddValuableContainerOnTopOfOtherContainers()
         {
             var stack = new Stack();
-            stack.AddContainer(new Container(10, ContainerType.Regular)); // 10 tons, regular
-            Assert.IsTrue(stack.CanAddContainer(new Container(5, ContainerType.Valuable))); // Can add valuable container on top
+            stack.AddContainer(new Container(10, ContainerType.Regular));
+            Assert.IsTrue(stack.CanAddContainer(new Container(5, ContainerType.Valuable)));
         }
     }
 }
