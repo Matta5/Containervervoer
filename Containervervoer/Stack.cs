@@ -3,15 +3,16 @@
     public class Stack
     {
         private List<Container> Containers { get; set; }
+        public IReadOnlyList<Container> containers { get { return Containers; } }
 
         public Stack()
         {
             Containers = new List<Container>();
         }
 
-        public List<Container> GetContainers()
+        public IReadOnlyList<Container> GetContainers()
         {
-            return new List<Container>(Containers);
+            return Containers;
         }
 
         public bool CanAddContainer(Container container)

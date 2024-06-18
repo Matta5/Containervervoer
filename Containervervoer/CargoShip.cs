@@ -25,11 +25,14 @@ public class CargoShip
 
     public void AddContainer(Container container)
     {
+        bool isFirstRow, isLastRow;
+
         if (container.Type == ContainerType.Cooled)
         {
             // Handle cooled containers
+            isFirstRow = true;
             var firstRow = Rows[0];
-            if (firstRow.CanAddContainer(container, true))
+            if (firstRow.CanAddContainer(container, isFirstRow, false))
             {
                 firstRow.AddContainer(container);
                 Console.WriteLine($"Added cooled container of weight {container.Weight} to the first row.");
@@ -42,9 +45,12 @@ public class CargoShip
         else if (container.Type == ContainerType.Valuable)
         {
             // Handle valuable containers
-            foreach (var row in Rows)
+            for (int i = 0; i < Rows.Count; i++)
             {
-                if (row.CanAddContainer(container, Rows.IndexOf(row) == 0))
+                isFirstRow = i == 0;
+                isLastRow = i == Rows.Count - 1;
+                var row = Rows[i];
+                if (row.CanAddContainer(container, isFirstRow, isLastRow))
                 {
                     row.AddContainer(container);
                     Console.WriteLine($"Added valuable container of weight {container.Weight}.");
@@ -58,7 +64,9 @@ public class CargoShip
             // Handle regular containers
             foreach (var row in Rows)
             {
-                if (row.CanAddContainer(container, Rows.IndexOf(row) == 0))
+                isFirstRow = Rows.IndexOf(row) == 0;
+                isLastRow = Rows.IndexOf(row) == Rows.Count - 1;
+                if (row.CanAddContainer(container, isFirstRow, isLastRow))
                 {
                     row.AddContainer(container);
                     Console.WriteLine($"Added {container.Type.ToString().ToLower()} container of weight {container.Weight}.");

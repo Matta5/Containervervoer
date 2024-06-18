@@ -25,22 +25,21 @@ public class Row
 
 
 
-    public bool CanAddContainer(Container container, bool isFirstRow)
+    public bool CanAddContainer(Container container, bool isFirstRow, bool isLastRow)
     {
-        // Alle cooled containers moeten op de eerste rij worden geplaatst 
         if (container.Type == ContainerType.Cooled && !isFirstRow)
         {
             return false;
         }
 
-        // kijk of er een stack is waar de valuable container op kan
         if (container.Type == ContainerType.Valuable)
         {
-            // Check of er een stack is waar de valuable container op kan
-            return Stacks.Any(stack => !stack.GetContainers().Any() || (stack.GetContainers().Count == 1 && stack.GetContainers()[0].Type != ContainerType.Valuable));
+            
+            if (!isFirstRow && !isLastRow) return false;
+
+            return Stacks[0].CanAddContainer(container) || Stacks[^1].CanAddContainer(container);
         }
 
-        // Kijk of er een stack is waar de container op kan
         return Stacks.Any(stack => stack.CanAddContainer(container));
     }
 

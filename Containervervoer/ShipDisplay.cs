@@ -4,10 +4,8 @@ public class ShipDisplay
 {
     public static void Display(CargoShip ship)
     {
-        // Maximaal aantal containers in een stack zodat we weten hoeveel lagen we moeten weergeven
         int maxHeight = ship.GetRows().Max(row => row.GetStacks().Max(stack => stack.GetContainers().Count));
 
-        // Display elke layer
         for (int h = 0; h < maxHeight; h++)
         {
             Console.WriteLine($"Layer {h + 1}:");
@@ -17,7 +15,6 @@ public class ShipDisplay
                 {
                     if (h < stack.GetContainers().Count)
                     {
-                        // Gebruik ContainerToString om de container weer te geven
                         Console.Write($"[{ContainerToString(stack.GetContainers()[h])}]");
                     }
                     else
