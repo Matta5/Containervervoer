@@ -1,7 +1,4 @@
-using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-namespace Containervervoer.Tests
+namespace Containervervoer.StackTests
 {
     [TestClass]
     public class ContainerTests

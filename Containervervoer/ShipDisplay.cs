@@ -43,4 +43,16 @@ public class ShipDisplay
                 return "R";
         }
     }
+
+    public static void DisplayIfHalfOfMaxWeight(CargoShip ship)
+    {
+        if (ship.IsAtLeastHalfFull())
+        {
+            Console.WriteLine("The ship is properly loaded.");
+        }
+        else
+        {
+            Console.WriteLine("The ship is not loaded enough. It must be at least 50% of its maximum capacity.");
+        }
+    }
 }

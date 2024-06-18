@@ -5,6 +5,11 @@ public class CargoShip
     public int Length { get; private set; }
     public int Width { get; private set; }
     private List<Row> Rows { get; set; }
+    
+    public List<Row> GetRows()
+    {
+        return new List<Row>(Rows);
+    }
 
     public CargoShip(int length, int width)
     {
@@ -64,10 +69,29 @@ public class CargoShip
         }
     }
 
-    public List<Row> GetRows()
+    public double CalculateTotalWeight()
     {
-        return new List<Row>(Rows);
+        double totalWeight = 0;
+        foreach (var row in GetRows())
+        {
+            foreach (var stack in row.GetStacks())
+            {
+                totalWeight += stack.GetContainers().Sum(container => container.Weight);
+            }
+        }
+        return totalWeight;
     }
+
+    public bool IsAtLeastHalfFull()
+    {
+        double totalWeight = CalculateTotalWeight();
+        double maxCapacity = Length * Width * 150;
+        return totalWeight >= (maxCapacity * 0.5);
+    }
+
+
+
+
 }
 
 

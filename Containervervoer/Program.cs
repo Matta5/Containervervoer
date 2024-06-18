@@ -17,7 +17,7 @@ class Program
                 new Container(20, ContainerType.Valuable),
                 new Container(15, ContainerType.Cooled),
                 new Container(5, ContainerType.Regular),
-                new Container(8, ContainerType.Regular),
+                new Container(30, ContainerType.Regular),new Container(30, ContainerType.Regular),new Container(30, ContainerType.Regular),new Container(30, ContainerType.Regular),new Container(30, ContainerType.Regular),new Container(30, ContainerType.Regular),new Container(30, ContainerType.Regular),new Container(30, ContainerType.Regular),new Container(30, ContainerType.Regular),
                 new Container(12, ContainerType.Valuable),
                 new Container(18, ContainerType.Cooled)
             };
@@ -35,5 +35,7 @@ class Program
         }
 
         ShipDisplay.Display(ship);
+
+        ShipDisplay.DisplayIfHalfOfMaxWeight(ship);
     }
 }
