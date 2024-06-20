@@ -2,7 +2,7 @@
 
 public class Row
 {
-    private List<Stack> Stacks { get; set; }
+    public List<Stack> Stacks { get; private set; }
 
     public Row(int width)
     {
@@ -13,36 +13,41 @@ public class Row
         }
     }
 
-    public void AddStack(Stack stack)
-    {
-        Stacks.Add(stack);
-    }
-
     public List<Stack> GetStacks()
     {
         return new List<Stack>(Stacks);
     }
 
-
-
-    public bool CanAddContainer(Container container, bool isFirstRow, bool isLastRow)
+    public bool CanAddContainer(Container container, int rowIndex, List<Row> allRows)
     {
-        if (container.Type == ContainerType.Cooled && !isFirstRow)
+        // Enforce cooled containers to be in the first row only
+        if (container.Type == ContainerType.Cooled && rowIndex != 0)
         {
             return false;
         }
 
-        if (container.Type == ContainerType.Valuable)
+         if (container.Type == ContainerType.Valuable)
         {
-            
-            if (!isFirstRow && !isLastRow) return false;
+            // Valuable containers can be placed in any row but need an open door.
+            bool isFirstLayer = Stacks.All(s => s.GetContainers().Count == 0);
+            bool hasOpenDoor = isFirstLayer || rowIndex == 0 || rowIndex == allRows.Count - 1;
 
-            return Stacks[0].CanAddContainer(container) || Stacks[^1].CanAddContainer(container);
+            // Check for staircase condition if not the first or last row
+            if (!hasOpenDoor && rowIndex > 0 && rowIndex < allRows.Count - 1)
+            {
+                var prevRowHeight = allRows[rowIndex - 1].GetMaxHeight();
+                var nextRowHeight = allRows[rowIndex + 1].GetMaxHeight();
+                var currentRowHeight = GetMaxHeight();
+
+                hasOpenDoor = prevRowHeight < currentRowHeight || nextRowHeight < currentRowHeight;
+            }
+
+            return hasOpenDoor && Stacks.Any(s => s.CanAddContainer(container));
         }
 
+        // General logic for adding containers (applies to regular containers)
         return Stacks.Any(stack => stack.CanAddContainer(container));
     }
-
 
     public void AddContainer(Container container)
     {
@@ -77,5 +82,10 @@ public class Row
 
             throw new InvalidOperationException("Cannot add container to any stack.");
         }
+    }
+
+    public int GetMaxHeight()
+    {
+        return Stacks.Max(stack => stack.GetContainers().Count);
     }
 }

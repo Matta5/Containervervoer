@@ -25,57 +25,66 @@ public class CargoShip
 
     public void AddContainer(Container container)
     {
-        bool isFirstRow, isLastRow;
-
-        if (container.Type == ContainerType.Cooled)
+        switch (container.Type)
         {
-            // Handle cooled containers
-            isFirstRow = true;
-            var firstRow = Rows[0];
-            if (firstRow.CanAddContainer(container, isFirstRow, false))
-            {
-                firstRow.AddContainer(container);
-                Console.WriteLine($"Added cooled container of weight {container.Weight} to the first row.");
-            }
-            else
-            {
-                throw new InvalidOperationException("Cannot add cooled container.");
-            }
-        }
-        else if (container.Type == ContainerType.Valuable)
-        {
-            // Handle valuable containers
-            for (int i = 0; i < Rows.Count; i++)
-            {
-                isFirstRow = i == 0;
-                isLastRow = i == Rows.Count - 1;
-                var row = Rows[i];
-                if (row.CanAddContainer(container, isFirstRow, isLastRow))
-                {
-                    row.AddContainer(container);
-                    Console.WriteLine($"Added valuable container of weight {container.Weight}.");
-                    return;
-                }
-            }
-            throw new InvalidOperationException("Cannot add valuable container.");
-        }
-        else
-        {
-            // Handle regular containers
-            foreach (var row in Rows)
-            {
-                isFirstRow = Rows.IndexOf(row) == 0;
-                isLastRow = Rows.IndexOf(row) == Rows.Count - 1;
-                if (row.CanAddContainer(container, isFirstRow, isLastRow))
-                {
-                    row.AddContainer(container);
-                    Console.WriteLine($"Added {container.Type.ToString().ToLower()} container of weight {container.Weight}.");
-                    return;
-                }
-            }
-            Console.WriteLine("No more space to add containers.");
+            case ContainerType.Cooled:
+                AddCooledContainer(container);
+                break;
+            case ContainerType.Regular:
+                AddRegularContainer(container);
+                break;
+            case ContainerType.Valuable:
+                AddValuableContainer(container);
+                break;            
+            default:
+                throw new InvalidOperationException("Unknown container type.");
         }
     }
+
+    private void AddCooledContainer(Container container)
+    {
+        var firstRow = Rows[0];
+        if (!firstRow.CanAddContainer(container, 0, Rows))
+        {
+            throw new InvalidOperationException("Cannot add cooled container.");
+        }
+        firstRow.AddContainer(container);
+        Console.WriteLine($"Added cooled container of weight {container.Weight} to the first row.");
+    }
+
+    private void AddValuableContainer(Container container)
+    {
+        for (int rowIndex = 0; rowIndex < Rows.Count; rowIndex++)
+        {
+            var row = Rows[rowIndex];
+            if (row.CanAddContainer(container, rowIndex, Rows))
+            {
+                row.AddContainer(container);
+                Console.WriteLine($"Added valuable container of weight {container.Weight}.");
+                return;
+            }
+        }
+        throw new InvalidOperationException("Cannot add valuable container.");
+    }
+
+    private void AddRegularContainer(Container container)
+    {
+        for (int rowIndex = 0; rowIndex < Rows.Count; rowIndex++)
+        {
+            var row = Rows[rowIndex];
+            // Now passing the required arguments to CanAddContainer
+            if (row.CanAddContainer(container, rowIndex, Rows))
+            {
+                row.AddContainer(container);
+                Console.WriteLine($"Added regular container of weight {container.Weight}.");
+                return;
+            }
+        }
+        Console.WriteLine("No more space to add regular containers.");
+    }
+
+
+
 
     public double CalculateTotalWeight()
     {
