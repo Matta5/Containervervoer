@@ -1,28 +1,33 @@
-﻿namespace Containervervoer
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Containervervoer
 {
     public class Stack
     {
-        private List<Container> Containers { get; set; }
-        public IReadOnlyList<Container> containers { get { return Containers; } }
+        private const double MaxWeightOnTop = 120;
+        private List<Container> Containers { get; set; } = new List<Container>();
 
-        public Stack()
+        public bool IsTopAccessible()
         {
-            Containers = new List<Container>();
+            if (Containers.Count == 0) return true; 
+            return Containers.Last().Type != ContainerType.Valuable;
         }
 
-        public IReadOnlyList<Container> GetContainers()
+        public bool CanAddContainer(Container newContainer)
         {
-            return Containers;
-        }
+            if (!Containers.Any() || newContainer.Type == ContainerType.Valuable)
+            {
+                return true;
+            }
 
-        public bool CanAddContainer(Container container)
-        {
-            if (Containers.Skip(1).Sum(c => c.Weight) + container.Weight > 120)
+            var topContainer = Containers.Last();
+            if (topContainer.Type == ContainerType.Valuable)
             {
                 return false;
             }
 
-            if (Containers.Any() && Containers.Last().Type == ContainerType.Valuable)
+            if (!CanSupportMoreWeight(newContainer.Weight))
             {
                 return false;
             }
@@ -30,16 +35,34 @@
             return true;
         }
 
+        public bool CanSupportMoreWeight(double additionalWeight)
+        {
+            const double maxWeightOnTop = 120;
+            double currentWeight = Containers.Sum(container => container.Weight);
+            return (currentWeight + additionalWeight) <= maxWeightOnTop;
+        }
+
         public void AddContainer(Container container)
         {
-            if (!CanAddContainer(container))
+            if (CanAddContainer(container))
             {
-                throw new InvalidOperationException("Kan container niet aan de stapel toevoegen.");
+                Containers.Add(container);
             }
+            else
+            {
+                throw new InvalidOperationException("Cannot add container to the stack.");
+            }
+        }
 
-            Containers.Add(container); // Voeg de container toe aan de lijst
+        public double CalculateTotalWeight()
+        {
+            return Containers.Sum(container => container.Weight);
+        }
+
+        public List<Container> GetContainers()
+        {
+            return new List<Container>(Containers);
         }
     }
+
 }
-
-

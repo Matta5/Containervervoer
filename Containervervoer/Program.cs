@@ -1,48 +1,77 @@
 ﻿using Containervervoer;
 
-class Program
+namespace Containervervoer
 {
-    static void Main()
+    class Program
     {
-        Console.WriteLine("Enter the length of the ship:");
-        int length = int.Parse(Console.ReadLine());
-        Console.WriteLine("Enter the width of the ship:");
-        int width = int.Parse(Console.ReadLine());
-
-        var ship = new CargoShip(length, width);
-
-        var containers = new List<Container>
+        static void Main()
+        {
+            Console.WriteLine("Enter the length of the ship:");
+            if (!int.TryParse(Console.ReadLine(), out int length))
             {
-                new Container(10, ContainerType.Regular),
+                Console.WriteLine("Invalid input for length. Please enter a valid integer.");
+                return;
+            }
+
+            Console.WriteLine("Enter the width of the ship:");
+            if (!int.TryParse(Console.ReadLine(), out int width))
+            {
+                Console.WriteLine("Invalid input for width. Please enter a valid integer.");
+                return;
+            }
+
+            var ship = new CargoShip(length, width);
+
+            var containers = new List<Container>
+            {
                 new Container(20, ContainerType.Valuable),
-                new Container(10, ContainerType.Valuable),
-                new Container(10, ContainerType.Valuable),
+                new Container(20, ContainerType.Regular),
                 new Container(15, ContainerType.Cooled),
-                new Container(5, ContainerType.Regular),
-                new Container(30, ContainerType.Regular),new Container(30, ContainerType.Regular),new Container(30, ContainerType.Regular),new Container(30, ContainerType.Regular),
-                new Container(12, ContainerType.Valuable),
+                new Container(15, ContainerType.Cooled),
+                new Container(20, ContainerType.Valuable),
+                new Container(20, ContainerType.Regular),
+                new Container(15, ContainerType.Cooled),
+                new Container(20, ContainerType.Valuable),
+                new Container(20, ContainerType.Regular),
                 new Container(18, ContainerType.Cooled)
+
             };
 
-        var sortedContainers = containers
-            .OrderByDescending(c => c.Type == ContainerType.Cooled)
-            .ThenByDescending(c => c.Type == ContainerType.Regular)
-            .ThenByDescending(c => c.Weight)
-            .ToList();
+            var sortedContainers = containers
+                .OrderByDescending(c => c.Type == ContainerType.Cooled)
+                .ThenByDescending(c => c.Type == ContainerType.Regular)
+                .ThenByDescending(c => c.Weight)
+                .ToList();
 
-        
-        foreach (var container in sortedContainers.Where(c => c.Type != ContainerType.Valuable))
-        {
-            ship.AddContainer(container);
+
+            foreach (var container in sortedContainers.Where(c => c.Type != ContainerType.Valuable))
+            {
+                ship.AddContainer(container);
+            }
+
+            foreach (var container in sortedContainers.Where(c => c.Type == ContainerType.Valuable))
+            {
+                ship.AddContainer(container);
+            }
+            
+            
+
+            ShipDisplay.Display(ship);
+            ShipDisplay.DisplayIfHalfOfMaxWeight(ship);
+
+            if (ship.IsBalanced())
+            {
+                Console.WriteLine("The ship's load is balanced or close to balanced.");
+            }
+            else
+            {
+                Console.WriteLine("The ship's load is not balanced. Consider redistributing the containers.");
+            }
+
+
         }
-
-        foreach (var container in sortedContainers.Where(c => c.Type == ContainerType.Valuable))
-        {
-            ship.AddContainer(container);
-        }
-
-        ShipDisplay.Display(ship);
-
-        ShipDisplay.DisplayIfHalfOfMaxWeight(ship);
     }
 }
+
+
+

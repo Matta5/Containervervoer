@@ -1,46 +1,43 @@
-namespace Containervervoer.StackTests
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Containervervoer; // Ensure this namespace matches your project structure
+
+[TestClass]
+public class StackTests
 {
-    [TestClass]
-    public class ContainerTests
+    [TestMethod]
+    public void CanPlaceValuableContainerOnTopOfOthers_HappyPath()
     {
-        [TestMethod]
-        public void CannotAddContainerIfExceedsMaxWeight()
-        {
-            var stack = new Stack();
-            stack.AddContainer(new Container(10, ContainerType.Cooled));
-            stack.AddContainer(new Container(30, ContainerType.Regular));
-            stack.AddContainer(new Container(30, ContainerType.Regular));
-            stack.AddContainer(new Container(30, ContainerType.Regular));
-            stack.AddContainer(new Container(30, ContainerType.Regular));
-            // 120 tons on top of 1 container so far, cannot add 10 tons
-            Assert.IsFalse(stack.CanAddContainer(new Container(10, ContainerType.Regular)));
-        }
+        var stack = new Stack();
+        stack.AddContainer(new Container(10, ContainerType.Regular));
+        Assert.IsTrue(stack.CanAddContainer(new Container(10, ContainerType.Valuable)));
+    }
 
-        [TestMethod]
-        public void CanAddContainerIfWithinMaxWeight()
-        {
-            var stack = new Stack();
-            stack.AddContainer(new Container(30, ContainerType.Regular));
-            stack.AddContainer(new Container(30, ContainerType.Regular));
-            stack.AddContainer(new Container(30, ContainerType.Regular));
-            // 60 tons on top of 1 containerso so far, can still add up to 30 tons
-            Assert.IsTrue(stack.CanAddContainer(new Container(30, ContainerType.Regular)));
-        }
+    [TestMethod]
+    public void CannotStackAboveValuableContainer()
+    {
+        var stack = new Stack();
+        stack.AddContainer(new Container(10, ContainerType.Valuable));
+        Assert.IsFalse(stack.CanAddContainer(new Container(10, ContainerType.Regular)));
+    }
 
-        [TestMethod]
-        public void CannotAddContainerOnTopOfValuableContainer()
-        {
-            var stack = new Stack();
-            stack.AddContainer(new Container(10, ContainerType.Valuable));
-            Assert.IsFalse(stack.CanAddContainer(new Container(5, ContainerType.Regular)));
-        }
+    [TestMethod]
+    public void MaximumWeightOnTopOfContainer_HappyPath()
+    {
+        var stack = new Stack();
+        stack.AddContainer(new Container(30, ContainerType.Regular));
+        stack.AddContainer(new Container(30, ContainerType.Regular));
+        stack.AddContainer(new Container(30, ContainerType.Regular));
+        Assert.IsTrue(stack.CanAddContainer(new Container(30, ContainerType.Regular))); // Exactly 120 tons
+    }
 
-        [TestMethod]
-        public void CanAddValuableContainerOnTopOfOtherContainers()
-        {
-            var stack = new Stack();
-            stack.AddContainer(new Container(10, ContainerType.Regular));
-            Assert.IsTrue(stack.CanAddContainer(new Container(5, ContainerType.Valuable)));
-        }
+    [TestMethod]
+    public void ExceedsMaximumWeightOnTopOfContainer()
+    {
+        var stack = new Stack();
+        stack.AddContainer(new Container(30, ContainerType.Regular));
+        stack.AddContainer(new Container(30, ContainerType.Regular));
+        stack.AddContainer(new Container(30, ContainerType.Regular));
+        stack.AddContainer(new Container(30, ContainerType.Regular)); // This should be the limit
+        Assert.IsFalse(stack.CanAddContainer(new Container(1, ContainerType.Regular))); // Exceeds 120 tons
     }
 }

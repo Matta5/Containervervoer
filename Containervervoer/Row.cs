@@ -1,91 +1,104 @@
-﻿using Containervervoer;
+﻿using System.Collections.Generic;
+using System.Linq;
 
-public class Row
+namespace Containervervoer
 {
-    public List<Stack> Stacks { get; private set; }
-
-    public Row(int width)
+    public class Row
     {
-        Stacks = new List<Stack>();
-        for (int i = 0; i < width; i++)
+        private List<Stack> Stacks { get; set; }
+
+        // Public property to access Stacks
+        public List<Stack> PublicStacks
         {
-            Stacks.Add(new Stack());
+            get { return Stacks; }
         }
-    }
 
-    public List<Stack> GetStacks()
-    {
-        return new List<Stack>(Stacks);
-    }
-
-    public bool CanAddContainer(Container container, int rowIndex, List<Row> allRows)
-    {
-        // Enforce cooled containers to be in the first row only
-        if (container.Type == ContainerType.Cooled && rowIndex != 0)
+        public Row(int width)
         {
+            Stacks = new List<Stack>();
+            for (int i = 0; i < width; i++)
+            {
+                Stacks.Add(new Stack());
+            }
+        }
+        public int RowIndex { get; private set; }
+
+
+        public bool CanAddContainer(Container container, bool addToLeftSide, int shipLength)
+        {
+            var eligibleStacks = GetEligibleStacks(addToLeftSide);
+
+            foreach (var stack in eligibleStacks)
+            {
+                if (container.Type == ContainerType.Cooled && RowIndex != 0)
+                {
+                    // Cooled containers can only be added in the first row
+                    continue;
+                }
+
+                if (container.Type == ContainerType.Valuable && !stack.IsTopAccessible())
+                {
+                    // Valuable containers must be accessible, i.e., cannot have containers stacked on top
+                    continue;
+                }
+
+                if (stack.CanAddContainer(container))
+                {
+                    // Check if adding this container exceeds the maximum allowed weight on top of the stack
+                    continue;
+                }
+
+                // If all conditions are met, this stack can accept the container
+                return true;
+            }
+
+            // No eligible stack found that can accept the container under the given conditions
             return false;
         }
 
-         if (container.Type == ContainerType.Valuable)
-        {
-            // Valuable containers can be placed in any row but need an open door.
-            bool isFirstLayer = Stacks.All(s => s.GetContainers().Count == 0);
-            bool hasOpenDoor = isFirstLayer || rowIndex == 0 || rowIndex == allRows.Count - 1;
-
-            // Check for staircase condition if not the first or last row
-            if (!hasOpenDoor && rowIndex > 0 && rowIndex < allRows.Count - 1)
+        public void AddContainer(Container container, bool addToLeftSide)
             {
-                var prevRowHeight = allRows[rowIndex - 1].GetMaxHeight();
-                var nextRowHeight = allRows[rowIndex + 1].GetMaxHeight();
-                var currentRowHeight = GetMaxHeight();
-
-                hasOpenDoor = prevRowHeight < currentRowHeight || nextRowHeight < currentRowHeight;
-            }
-
-            return hasOpenDoor && Stacks.Any(s => s.CanAddContainer(container));
-        }
-
-        // General logic for adding containers (applies to regular containers)
-        return Stacks.Any(stack => stack.CanAddContainer(container));
-    }
-
-    public void AddContainer(Container container)
-    {
-        if (container.Type == ContainerType.Cooled)
-        {
-            bool added = false;
-            foreach (var stack in Stacks)
-            {
-                if (stack.CanAddContainer(container))
+                var eligibleStacks = GetEligibleStacks(addToLeftSide);
+                foreach (var stack in eligibleStacks)
                 {
-                    stack.AddContainer(container);
-                    added = true;
-                    break;
+                    if (stack.CanAddContainer(container))
+                    {
+                        stack.AddContainer(container);
+                        return;
+                    }
                 }
+                throw new InvalidOperationException("No suitable stack found to add the container.");
             }
 
-            if (!added)
+            private IEnumerable<Stack> GetEligibleStacks(bool addToLeftSide)
             {
-                throw new InvalidOperationException("Cannot add cooled container to the first row.");
+                int halfStacks = Stacks.Count / 2;
+                return addToLeftSide ? Stacks.Take(halfStacks) : Stacks.Skip(halfStacks);
             }
-        }
-        else
+        
+
+
+        public double CalculateTotalWeightLeftSide()
         {
-            foreach (var stack in Stacks)
-            {
-                if (stack.CanAddContainer(container))
-                {
-                    stack.AddContainer(container);
-                    return;
-                }
-            }
+            int halfStacks = Stacks.Count / 2;
+            return Stacks.Take(halfStacks).Sum(stack => stack.CalculateTotalWeight());
+        }
 
-            throw new InvalidOperationException("Cannot add container to any stack.");
+        public double CalculateTotalWeightRightSide()
+        {
+            int halfStacks = Stacks.Count / 2;
+            return Stacks.Skip(halfStacks).Sum(stack => stack.CalculateTotalWeight());
+        }
+
+        public double CalculateTotalWeight()
+        {
+            return Stacks.Sum(stack => stack.CalculateTotalWeight());
+        }
+
+        public List<Stack> GetStacks()
+        {
+            return new List<Stack>(Stacks);
         }
     }
 
-    public int GetMaxHeight()
-    {
-        return Stacks.Max(stack => stack.GetContainers().Count);
-    }
 }

@@ -1,4 +1,6 @@
-﻿namespace Containervervoer
+﻿using Containervervoer;
+
+namespace Containervervoer
 {
     public enum ContainerType
     {
@@ -9,14 +11,13 @@
 
     public class Container
     {
-        public double Weight { get; private set; }
-        public ContainerType Type { get; private set; }
+        public ContainerType Type { get; set; }
+        public double Weight { get; set; } // Weight in tons
 
-        public Container(double weight, ContainerType type = ContainerType.Regular)
+        public Container(double weight, ContainerType type)
         {
-            Weight = weight;
             Type = type;
+            Weight = weight;
         }
-
     }
 }
