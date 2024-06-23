@@ -50,7 +50,6 @@ namespace Containervervoer
                 Console.WriteLine($"Regular container with weight {container.Weight} added successfully.");
                 return;
             }
-            // Handle valuable containers with accessibility in mind
             if (container.Type == ContainerType.Valuable)
             {
                 if (!TryAddValuableContainer(container))
@@ -66,141 +65,117 @@ namespace Containervervoer
 
 
 
-        private bool TryAddCooledContainer(Container container)
+        private bool TryAddContainerBasedOnType(Container container, Func<Stack, bool> canAddToStack)
         {
-            Row firstRow = this.Rows[0];
-            // Calculate total weight on each side
-            double leftSideWeight = 0;
-            double rightSideWeight = 0;
+            int totalStacks = this.Rows[0].PublicStacks.Count;
+            int midPoint = totalStacks / 2;
+            bool hasMiddleStack = totalStacks % 2 != 0;
 
-            int midPoint = firstRow.PublicStacks.Count / 2;
-            for (int i = 0; i < firstRow.PublicStacks.Count; i++)
+            if (hasMiddleStack)
             {
-                double stackWeight = firstRow.PublicStacks[i].CalculateTotalWeight();
-                if (i < midPoint)
+                Stack middleStack = this.Rows[0].PublicStacks[midPoint];
+                if (canAddToStack(middleStack))
                 {
-                    leftSideWeight += stackWeight;
-                }
-                else
-                {
-                    rightSideWeight += stackWeight;
-                }
-            }
-
-            bool addToLeftSide = leftSideWeight <= rightSideWeight;
-
-            foreach (var stack in firstRow.PublicStacks)
-            {
-                bool isStackOnLeftSide = firstRow.PublicStacks.IndexOf(stack) < midPoint;
-                if (addToLeftSide == isStackOnLeftSide && stack.CanAddContainer(container))
-                {
-                    stack.AddContainer(container);
+                    middleStack.AddContainer(container);
                     return true;
                 }
             }
 
+            bool addToLeftSide = CalculateSideToAdd(container);
+
+            foreach (var row in this.Rows)
+            {
+                foreach (var stack in row.PublicStacks)
+                {
+                    bool isStackOnLeftSide = row.PublicStacks.IndexOf(stack) < midPoint;
+                    
+                    // Skip the middle stack when distributing containers to sides
+                    if (hasMiddleStack && row.PublicStacks.IndexOf(stack) == midPoint) continue;
+
+                    if (addToLeftSide == isStackOnLeftSide && canAddToStack(stack))
+                    {
+                        stack.AddContainer(container);
+                        return true;
+                    }
+                }
+            }
+
             return false;
         }
 
+
+        private bool CalculateSideToAdd(Container container)
+        {
+            double leftSideWeight = 0;
+            double rightSideWeight = 0;
+            int totalStacks = this.Rows[0].PublicStacks.Count;
+            int midPoint = totalStacks / 2;
+
+            bool hasMiddleStack = totalStacks % 2 != 0;
+
+            foreach (var row in this.Rows)
+            {
+                for (int i = 0; i < row.PublicStacks.Count; i++)
+                {
+                    if (hasMiddleStack && i == midPoint) continue; // slaat middelste container over
+
+                    double stackWeight = row.PublicStacks[i].CalculateTotalWeight();
+                    if (i < midPoint)
+                    {
+                        leftSideWeight += stackWeight;
+                    }
+                    else
+                    {
+                        rightSideWeight += stackWeight;
+                    }
+                }
+            }
+
+            return leftSideWeight <= rightSideWeight;
+        }
+
+
+        private bool TryAddCooledContainer(Container container)
+        {
+            return TryAddContainerBasedOnType(container, stack => this.Rows[0].PublicStacks.Contains(stack) && stack.CanAddContainer(container));
+        }
 
         private bool TryAddValuableContainer(Container container)
         {
-            double leftSideWeight = 0;
-            double rightSideWeight = 0;
-            int midPoint = this.Rows[0].PublicStacks.Count / 2; 
-
-            foreach (var row in this.Rows)
-            {
-                for (int i = 0; i < row.PublicStacks.Count; i++)
-                {
-                    double stackWeight = row.PublicStacks[i].CalculateTotalWeight();
-                    if (i < midPoint)
-                    {
-                        leftSideWeight += stackWeight;
-                    }
-                    else
-                    {
-                        rightSideWeight += stackWeight;
-                    }
-                }
-            }
-
-            bool addToLeftSide = leftSideWeight <= rightSideWeight;
-
-            foreach (var row in this.Rows)
-            {
-                foreach (var stack in row.PublicStacks)
-                {
-                    bool isStackOnLeftSide = row.PublicStacks.IndexOf(stack) < midPoint;
-                    if (addToLeftSide == isStackOnLeftSide && stack.CanAddContainer(container) && stack.IsTopAccessible())
-                    {
-                        stack.AddContainer(container);
-                        return true;
-                    }
-                }
-            }
-
-            return false;
+            return TryAddContainerBasedOnType(container, stack => stack.CanAddContainer(container) && stack.IsTopAccessible());
         }
-
 
         private bool TryAddRegularContainer(Container container)
         {
-            double leftSideWeight = 0;
-            double rightSideWeight = 0;
-            int midPoint = this.Rows[0].PublicStacks.Count / 2;
-
-            foreach (var row in this.Rows)
-            {
-                for (int i = 0; i < row.PublicStacks.Count; i++)
-                {
-                    double stackWeight = row.PublicStacks[i].CalculateTotalWeight();
-                    if (i < midPoint)
-                    {
-                        leftSideWeight += stackWeight;
-                    }
-                    else
-                    {
-                        rightSideWeight += stackWeight;
-                    }
-                }
-            }
-
-            bool addToLeftSide = leftSideWeight <= rightSideWeight;
-
-            foreach (var row in this.Rows)
-            {
-                foreach (var stack in row.PublicStacks)
-                {
-                    bool isStackOnLeftSide = row.PublicStacks.IndexOf(stack) < midPoint;
-                    if (addToLeftSide == isStackOnLeftSide && stack.CanAddContainer(container))
-                    {
-                        stack.AddContainer(container);
-                        return true;
-                    }
-                }
-            }
-
-            return false;
+            return TryAddContainerBasedOnType(container, stack => stack.CanAddContainer(container));
         }
 
 
         public bool IsBalanced()
         {
-            double leftWeight = 0;
-            double rightWeight = 0;
+            double totalWeight = this.Rows.SelectMany(row => row.PublicStacks).Sum(stack => stack.CalculateTotalWeight());
+            double leftSideWeight = 0;
+            double rightSideWeight = 0;
+            int midPoint = this.Rows[0].PublicStacks.Count / 2;
 
-            foreach (var row in Rows)
+            for (int i = 0; i < this.Rows.Count; i++)
             {
-                for (int i = 0; i < row.GetStacks().Count; i++)
+                for (int j = 0; j < this.Rows[i].PublicStacks.Count; j++)
                 {
-                    if (i < row.GetStacks().Count / 2) leftWeight += row.GetStacks()[i].CalculateTotalWeight();
-                    else rightWeight += row.GetStacks()[i].CalculateTotalWeight();
+                    double stackWeight = this.Rows[i].PublicStacks[j].CalculateTotalWeight();
+                    if (j < midPoint)
+                    {
+                        leftSideWeight += stackWeight;
+                    }
+                    else if (j > midPoint || this.Rows[0].PublicStacks.Count % 2 == 0) // Adjust for even number of stacks
+                    {
+                        rightSideWeight += stackWeight;
+                    }
                 }
             }
 
-            double totalWeight = leftWeight + rightWeight;
-            return Math.Abs(leftWeight - rightWeight) <= totalWeight * 0.2;
+            double balanceThreshold = totalWeight * 0.2; // 20% of total weight
+            return Math.Abs(leftSideWeight - rightSideWeight) <= balanceThreshold;
         }
 
         public bool IsAtLeastHalfFull()

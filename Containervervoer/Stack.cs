@@ -5,7 +5,6 @@ namespace Containervervoer
 {
     public class Stack
     {
-        private const double MaxWeightOnTop = 120;
         private List<Container> Containers { get; set; } = new List<Container>();
 
         public bool IsTopAccessible()
@@ -38,7 +37,7 @@ namespace Containervervoer
         public bool CanSupportMoreWeight(double additionalWeight)
         {
             const double maxWeightOnTop = 120;
-            double currentWeight = Containers.Sum(container => container.Weight);
+            double currentWeight = Containers.Count > 1 ? Containers.Skip(1).Sum(container => container.Weight) : 0;
             return (currentWeight + additionalWeight) <= maxWeightOnTop;
         }
 

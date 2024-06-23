@@ -1,5 +1,4 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Containervervoer; // Ensure this namespace matches your project structure
+using Containervervoer;
 
 [TestClass]
 public class StackTests
@@ -27,17 +26,18 @@ public class StackTests
         stack.AddContainer(new Container(30, ContainerType.Regular));
         stack.AddContainer(new Container(30, ContainerType.Regular));
         stack.AddContainer(new Container(30, ContainerType.Regular));
-        Assert.IsTrue(stack.CanAddContainer(new Container(30, ContainerType.Regular))); // Exactly 120 tons
+        Assert.IsTrue(stack.CanAddContainer(new Container(30, ContainerType.Regular))); // Exact 120 ton
     }
 
     [TestMethod]
     public void ExceedsMaximumWeightOnTopOfContainer()
     {
         var stack = new Stack();
+        stack.AddContainer(new Container(1, ContainerType.Regular));
         stack.AddContainer(new Container(30, ContainerType.Regular));
         stack.AddContainer(new Container(30, ContainerType.Regular));
         stack.AddContainer(new Container(30, ContainerType.Regular));
-        stack.AddContainer(new Container(30, ContainerType.Regular)); // This should be the limit
-        Assert.IsFalse(stack.CanAddContainer(new Container(1, ContainerType.Regular))); // Exceeds 120 tons
+        stack.AddContainer(new Container(30, ContainerType.Regular));
+        Assert.IsFalse(stack.CanAddContainer(new Container(1, ContainerType.Regular))); // meer als 120 ton
     }
 }

@@ -12,7 +12,7 @@ namespace Containervervoer
     public class Container
     {
         public ContainerType Type { get; set; }
-        public double Weight { get; set; } // Weight in tons
+        public double Weight { get; set; }
 
         public Container(double weight, ContainerType type)
         {

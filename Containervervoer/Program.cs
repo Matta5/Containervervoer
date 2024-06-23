@@ -26,14 +26,13 @@ namespace Containervervoer
             {
                 new Container(20, ContainerType.Valuable),
                 new Container(20, ContainerType.Regular),
-                new Container(15, ContainerType.Cooled),
-                new Container(15, ContainerType.Cooled),
-                new Container(20, ContainerType.Valuable),
+                new Container(20, ContainerType.Regular),
+                new Container(20, ContainerType.Regular),
+                new Container(20, ContainerType.Regular),
+                new Container(20, ContainerType.Regular),
                 new Container(20, ContainerType.Regular),
                 new Container(15, ContainerType.Cooled),
-                new Container(20, ContainerType.Valuable),
-                new Container(20, ContainerType.Regular),
-                new Container(18, ContainerType.Cooled)
+                
 
             };
 
